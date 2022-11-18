@@ -14,7 +14,7 @@ import os.path
 # model_path = os.path.join(parent,'model')
 # print(model_path)
 model = lightgbm.Booster(model_file='lgbr_base.txt')
-st.write("RUL Alert")
+st.write("RUL Alert Project")
 csv=st.file_uploader("Upload CSV File")
 if csv is not None:
     df = pd.read_csv(csv)
