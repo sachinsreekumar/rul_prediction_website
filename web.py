@@ -1,4 +1,4 @@
-from st_aggrid import AgGrid, GridUpdateMode
+from st_aggrid import AgGrid, GridUpdateMode, DataReturnMode
 from st_aggrid.grid_options_builder import GridOptionsBuilder
 import joblib
 import lightgbm
@@ -13,6 +13,10 @@ import os.path
 # print(parent)
 # model_path = os.path.join(parent,'model')
 # print(model_path)
+st.set_page_config(layout="wide")
+
+
+
 model = lightgbm.Booster(model_file='lgbr_base.txt')
 st.write("RUL Alert Project")
 csv=st.file_uploader("Upload CSV File")
@@ -57,16 +61,36 @@ if csv is not None:
 
     # st.bar_chart(data=df_tmp.T)
 
-
+    def display_engines_under_rul():
+        list_of_engines_under_rul = df_cmp[(df_cmp.result == 1)]['EngineNo'].unique()
+        st.write("Engines that need maintenance: ")
+        list_of_engines = ''
+        for a in list_of_engines_under_rul:
+            list_of_engines = list_of_engines+str(a)+', '
+        list_of_engines = list_of_engines[:-2]
+        st.write(list_of_engines)
 
     def create_grid(df_grid):
         gd = GridOptionsBuilder.from_dataframe(df_grid)
+        gd.configure_default_column(enablePivot=True, enableValue=True, enableRowGroup=True) #1
         gd.configure_selection(selection_mode='multiple', use_checkbox=True)
+        gd.configure_side_bar()
         gridoptions = gd.build()
-        grid_table = AgGrid(df_grid, height=250, gridOptions=gridoptions,
-                            update_mode=GridUpdateMode.SELECTION_CHANGED)
+        customcss = {"#gridContainer":{"width":"1000px !important"}}
+        left, right = st.columns([3,1])
+        with left:
+            grid_table = AgGrid(df_grid, height=250, width=50, gridOptions=gridoptions,
+                                update_mode=GridUpdateMode.SELECTION_CHANGED, enable_enterprise_modules=True,
+                                data_return_mode=DataReturnMode.FILTERED_AND_SORTED,
+                                fit_columns_on_grid_load=False,
+                                header_checkbox_selection_filtered_only=True,
+                                custom_css=customcss,
+                                use_checkbox=True)
+        with right:
+            display_engines_under_rul()
 
-        st.write('## Selected')
+
+        # st.write('## Selected')
         selected_row = grid_table["selected_rows"]
         # st.dataframe(selected_row)
         selected_data = pd.DataFrame(selected_row)
@@ -80,5 +104,5 @@ if csv is not None:
     create_grid(df_cmp)
 
 
-    st.write('## Filter records with RUL under 30')
-    create_grid(df_cmp[(df_cmp.result == 1)])
+    # st.write('## Filter records with RUL under 30')
+    # create_grid(df_cmp[(df_cmp.result == 1)])
