@@ -7,19 +7,132 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import os.path
-# print(os.path.dirname(__file__))
-# current  = os.path.dirname(__file__)
-# parent = os.path.split(current)[0]
-# print(parent)
-# model_path = os.path.join(parent,'model')
-# print(model_path)
-st.set_page_config(layout="wide")
 
-
-
+st.set_page_config(layout="wide", page_title="RUL Predictor")
 model = lightgbm.Booster(model_file='lgbr_base.txt')
-st.write("RUL Alert Project")
-csv=st.file_uploader("Upload CSV File")
+scaler = joblib.load("scaler.save")
+
+# st.header("Predict RUL")
+st.markdown("<h1 style='text-align: center; color: grey;'>Predict RUL</h1>", unsafe_allow_html=True)
+
+
+# def scroll():
+#     st.markdown("[Upload File](#upload-file)", unsafe_allow_html=True)
+#
+# st.button("scroll down", on_click=scroll)
+st.markdown("[Upload File](#upload-file)", unsafe_allow_html=True)
+
+# st.write('## Filter records with RUL under 30')
+# create_grid(df_cmp[(df_cmp.result == 1)])
+form = st.form("my_form")
+form.write("Enter sensory values to check the status of the engine")
+left,center, right = form.columns([1, 1, 1])
+
+with left:
+    OpSet1 = st.text_input('Operational Setting 1', key='OpSet1', placeholder="Operational Setting 1",label_visibility="visible")
+    HPCOutletTemp = st.text_input('HPC Outlet Temperature', key='HPCOutletTemp', placeholder="HPC Outlet Temperature",label_visibility="visible")
+    PhysicalFanSpeed = st.text_input('Physical Fan Speed', key='PhysicalFanSpeed', placeholder="Physical Fan Speed",label_visibility="visible")
+    FuelFlowRatio = st.text_input('Fuel Flow Ratio', key='FuelFlowRatio', placeholder="Fuel Flow Ratio",label_visibility="visible")
+    BPR = st.text_input('BPR', key='BPR', placeholder="BPR",label_visibility="visible")
+with center:
+    OpSet2 = st.text_input('Operational Setting 2', key='OpSet2', placeholder="Operational Setting 2",label_visibility="visible")
+    LPTOutletTemp = st.text_input('LPT Outlet Temperature', key='LPTOutletTemp', placeholder="LPT Outlet Temperature",label_visibility="visible")
+    PhysicalCoreSpeed = st.text_input('Physical Core Speed', key='PhysicalCoreSpeed', placeholder="Physical Core Speed",label_visibility="visible")
+    CorctFanSpeed = st.text_input('Corct Fan Speed', key='CorctFanSpeed', placeholder="Corct Fan Speed",label_visibility="visible")
+    LPTCoolantBleed = st.text_input('LPT Coolant Bleed', key='LPTCoolantBleed', placeholder="LPT Coolant Bleed",label_visibility="visible")
+with right:
+    # engine_no = st.text_input('', key='engine_no', placeholder="Engine Number")
+    LPCOutletTemp = st.text_input('LPC Outlet Temperature', key='LPCOutletTemp', placeholder="LPC Outlet Temperature",label_visibility="visible")
+    TotalHPCOutletPressure = st.text_input('Total HPC Outlet Pressure', key='TotalHPCOutletPressure', placeholder="Total HPC Outlet Pressure",label_visibility="visible")
+    StaticHPCOutletPressure = st.text_input('Static HPC Outlet Pressure', key='StaticHPCOutletPressure', placeholder="Static HPC Outlet Pressure",label_visibility="visible")
+    CorctCoreSpeed = st.text_input('Corct Core Speed', key='CorctCoreSpeed', placeholder="Corct Core Speed",label_visibility="visible")
+    HPTCoolantBleed = st.text_input('HPT Coolant Bleed', key='HPTCoolantBleed', placeholder="HPT Coolant Bleed",label_visibility="visible")
+
+
+def clear_form():
+    st.session_state["OpSet1"] = ""
+    st.session_state["OpSet2"] = ""
+    st.session_state["LPCOutletTemp"] = ""
+    st.session_state["HPCOutletTemp"] = ""
+    st.session_state["LPTOutletTemp"] = ""
+    st.session_state["TotalHPCOutletPressure"] = ""
+    st.session_state["PhysicalFanSpeed"] = ""
+    st.session_state["PhysicalCoreSpeed"] = ""
+    st.session_state["StaticHPCOutletPressure"] = ""
+    st.session_state["FuelFlowRatio"] = ""
+    st.session_state["CorctFanSpeed"] = ""
+    st.session_state["CorctCoreSpeed"] = ""
+    st.session_state["BPR"] = ""
+    st.session_state["HPTCoolantBleed"] = ""
+    st.session_state["LPTCoolantBleed"] = ""
+
+
+
+# Now add a submit button to the form:
+
+left, right = st.columns([1,1])
+with left:
+    is_submit = form.form_submit_button("Predict")
+with right:
+    is_clear = form.form_submit_button("Clear All", on_click=clear_form)
+if is_submit:
+    OpSet1 = 0 if OpSet1=='' else OpSet1
+    OpSet2 = 0 if OpSet2 == '' else OpSet2
+    LPCOutletTemp = 0 if LPCOutletTemp == '' else LPCOutletTemp
+    HPCOutletTemp = 0 if HPCOutletTemp == '' else HPCOutletTemp
+    LPTOutletTemp = 0 if LPTOutletTemp == '' else LPTOutletTemp
+    TotalHPCOutletPressure = 0 if TotalHPCOutletPressure == '' else TotalHPCOutletPressure
+    PhysicalFanSpeed = 0 if PhysicalFanSpeed == '' else PhysicalFanSpeed
+    PhysicalCoreSpeed = 0 if PhysicalCoreSpeed == '' else PhysicalCoreSpeed
+    StaticHPCOutletPressure = 0 if StaticHPCOutletPressure == '' else StaticHPCOutletPressure
+    FuelFlowRatio = 0 if FuelFlowRatio == '' else FuelFlowRatio
+    CorctFanSpeed = 0 if CorctFanSpeed == '' else CorctFanSpeed
+    CorctCoreSpeed = 0 if CorctCoreSpeed == '' else CorctCoreSpeed
+    BPR = 0 if BPR == '' else BPR
+    HPTCoolantBleed = 0 if HPTCoolantBleed=='' else HPTCoolantBleed
+    LPTCoolantBleed = 0 if LPTCoolantBleed == '' else LPTCoolantBleed
+
+
+
+    names = ['OpSet1', 'OpSet2', 'LPCOutletTemp', 'HPCOutletTemp', 'LPTOutletTemp',
+                         'TotalHPCOutletPressure', 'PhysicalFanSpeed', 'PhysicalCoreSpeed', 'StaticHPCOutletPressure',
+                         'FuelFlowRatio', 'CorctFanSpeed', 'CorctCoreSpeed', 'BPR', 'HPTCoolantBleed',
+                         'LPTCoolantBleed']
+    # list_of_form_values = [[float(OpSet1)],[float(OpSet2)],[float(LPCOutletTemp)],[float(HPCOutletTemp)],[float(LPTOutletTemp)],[float(TotalHPCOutletPressure)],[float(PhysicalFanSpeed)],[float(PhysicalCoreSpeed)],
+    #                        [float(StaticHPCOutletPressure)],[float(FuelFlowRatio)],[float(CorctFanSpeed)],[float(CorctCoreSpeed)],[float(BPR)],[float(HPTCoolantBleed)],
+    #                        [float(LPTCoolantBleed)]]
+    list_of_form_values = [float(OpSet1), float(OpSet2), float(LPCOutletTemp), float(HPCOutletTemp),
+                           float(LPTOutletTemp), float(TotalHPCOutletPressure), float(PhysicalFanSpeed),
+                           float(PhysicalCoreSpeed),
+                           float(StaticHPCOutletPressure), float(FuelFlowRatio), float(CorctFanSpeed),
+                           float(CorctCoreSpeed), float(BPR), float(HPTCoolantBleed),
+                           float(LPTCoolantBleed)]
+    # arr_form=st.write(np.transpose(np.array(list_of_form_values)))
+    df_form = pd.DataFrame(data=[list_of_form_values], columns=names)
+    # st.write(df_form)
+    scaled_data_form = scaler.transform(df_form)
+    # st.write(scaled_data_form)
+    y_pred_temp = model.predict(scaled_data_form)
+    y_pred_form = (y_pred_temp >= 0.5).astype('int')
+    # st.write(y_pred_form[0])
+    if y_pred_form[0]:
+        # st.write("The remaining cycle of the engine could be less than 30 cycles.")
+        st.warning('The remaining cycle of the engine could be less than 30 cycles.', icon="⚠️")
+    else:
+        # st.write("Engine is in good condition and can go more than 30 cycles")
+        st.success('Engine is in good condition and can go more than 30 cycles!', icon="✅")
+        st.balloons()
+        st.snow()
+
+
+
+st.markdown("<h2 id='seperator' style='width: 100%; text-align: center; border-bottom: 1px dashed; line-height: 0.1em; margin: 10px 0 20px;'>"
+            "<span style='background:rgb(14, 17, 23); padding:0 10px; color: white '>OR</span></h2>", unsafe_allow_html=True)
+
+
+
+st.markdown("<h1 style='text-align: center; color: grey;'>Upload File</h1>", unsafe_allow_html=True)
+csv=st.file_uploader("")
 if csv is not None:
     df = pd.read_csv(csv)
     # st.write(df)
@@ -29,7 +142,7 @@ if csv is not None:
                              'StaticHPCOutletPressure',
                              'FuelFlowRatio', 'CorctFanSpeed', 'CorctCoreSpeed', 'BPR', 'HPTCoolantBleed',
                              'LPTCoolantBleed'], axis=1)
-    scaler = joblib.load("scaler.save")
+
     names = df_filtered.iloc[:, 2:].columns
     scaled_data = scaler.transform(df_filtered.iloc[:, 2:])
     df_test_scaled = pd.concat([df_filtered.iloc[:, 0:2], pd.DataFrame(scaled_data, columns=names)], axis=1)
@@ -104,5 +217,5 @@ if csv is not None:
     create_grid(df_cmp)
 
 
-    # st.write('## Filter records with RUL under 30')
-    # create_grid(df_cmp[(df_cmp.result == 1)])
+
+
