@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os.path
 
+
 st.set_page_config(layout="wide", page_title="RUL Predictor")
 model = lightgbm.Booster(model_file='lgbr_base.txt')
 scaler = joblib.load("scaler.save")
@@ -20,8 +21,8 @@ st.markdown("<h1 style='text-align: center; color: grey;'>Predict RUL</h1>", uns
 #     st.markdown("[Upload File](#upload-file)", unsafe_allow_html=True)
 #
 # st.button("scroll down", on_click=scroll)
-st.markdown("[Upload File](#upload-file)", unsafe_allow_html=True)
-
+# st.markdown("[Upload File](#upload-file)", unsafe_allow_html=True)
+st.markdown("<a style='color: grey;text-decoration: none;border-style: outset;border-radius: 2px;' href='#upload-file'>Upload File</a>", unsafe_allow_html=True)
 # st.write('## Filter records with RUL under 30')
 # create_grid(df_cmp[(df_cmp.result == 1)])
 form = st.form("my_form")
@@ -121,8 +122,7 @@ if is_submit:
     else:
         # st.write("Engine is in good condition and can go more than 30 cycles")
         st.success('Engine is in good condition and can go more than 30 cycles!', icon="✅")
-        st.balloons()
-        st.snow()
+
 
 
 
@@ -216,6 +216,5 @@ if csv is not None:
     df_cmp = df_tmp.copy()
     create_grid(df_cmp)
 
-
-
+    # plot_importance(model)
 
