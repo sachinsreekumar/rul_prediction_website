@@ -130,6 +130,18 @@ st.markdown("<h2 id='seperator' style='width: 100%; text-align: center; border-b
             "<span style='background:rgb(14, 17, 23); padding:0 10px; color: white '>OR</span></h2>", unsafe_allow_html=True)
 
 
+df_template = pd.DataFrame(columns=['EngineNo', 'Cycle','OpSet1', 'OpSet2', 'OpSet3','FanInletTemp', 'LPCOutletTemp', 'HPCOutletTemp', 'LPTOutletTemp', 'FanInletPressure',
+              'ByPassDuctPressure', 'TotalHPCOutletPressure', 'PhysicalFanSpeed', 'PhysicalCoreSpeed',
+              'EnginePressureRatio', 'StaticHPCOutletPressure', 'FuelFlowRatio', 'CorctFanSpeed', 'CorctCoreSpeed', 'BPR',
+              'BurnerFuelRatio', 'BleedEnthalpy', 'DemandFanSpeed', 'DemandCorctFanSpeed', 'HPTCoolantBleed', 'LPTCoolantBleed'])
+df_temp_csv=df_template.to_csv()
+st.download_button(
+        "Download Template",
+        df_temp_csv,
+        "template.csv",
+        "text/csv",
+        key='download-template'
+    )
 
 st.markdown("<h1 style='text-align: center; color: grey;'>Upload File</h1>", unsafe_allow_html=True)
 csv=st.file_uploader("")
@@ -171,7 +183,6 @@ if csv is not None:
         "text/csv",
         key='download-csv'
     )
-
     # st.bar_chart(data=df_tmp.T)
 
     def display_engines_under_rul():
