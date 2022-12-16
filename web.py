@@ -23,6 +23,41 @@ st.markdown("<h1 style='text-align: center; color: grey;'>Predict RUL</h1>", uns
 # st.button("scroll down", on_click=scroll)
 # st.markdown("[Upload File](#upload-file)", unsafe_allow_html=True)
 st.markdown("<a style='color: grey;text-decoration: none;border-style: outset;border-radius: 2px;' href='#upload-file'>Upload File</a>", unsafe_allow_html=True)
+option = st.selectbox('',('Select','Engine1', 'Engine2'))
+if option == 'Engine1':
+    st.session_state["OpSet1"] = "300"
+    st.session_state["OpSet2"] = "493"
+    st.session_state["LPCOutletTemp"] = "484"
+    st.session_state["HPCOutletTemp"] = "422"
+    st.session_state["LPTOutletTemp"] = "945"
+    st.session_state["TotalHPCOutletPressure"] = "482"
+    st.session_state["PhysicalFanSpeed"] = "383"
+    st.session_state["PhysicalCoreSpeed"] = "483"
+    st.session_state["StaticHPCOutletPressure"] = "858"
+    st.session_state["FuelFlowRatio"] = "492"
+    st.session_state["CorctFanSpeed"] = "438"
+    st.session_state["CorctCoreSpeed"] = "834"
+    st.session_state["BPR"] = "399"
+    st.session_state["HPTCoolantBleed"] = "483"
+    st.session_state["LPTCoolantBleed"] = "383"
+elif option == 'Engine2':
+    st.session_state["OpSet1"] = "0.001"
+    st.session_state["OpSet2"] = "0.22"
+    st.session_state["LPCOutletTemp"] = "24"
+    st.session_state["HPCOutletTemp"] = "21"
+    st.session_state["LPTOutletTemp"] = "23"
+    st.session_state["TotalHPCOutletPressure"] = "42"
+    st.session_state["PhysicalFanSpeed"] = "21"
+    st.session_state["PhysicalCoreSpeed"] = "21"
+    st.session_state["StaticHPCOutletPressure"] = "23"
+    st.session_state["FuelFlowRatio"] = "34"
+    st.session_state["CorctFanSpeed"] = "34"
+    st.session_state["CorctCoreSpeed"] = "22"
+    st.session_state["BPR"] = "32"
+    st.session_state["HPTCoolantBleed"] = "33"
+    st.session_state["LPTCoolantBleed"] = "23"
+
+
 # st.write('## Filter records with RUL under 30')
 # create_grid(df_cmp[(df_cmp.result == 1)])
 form = st.form("my_form")
